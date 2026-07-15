@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Church } from 'lucide-react';
 import { Tabs } from './components/ui';
 import { useStore } from './lib/store';
 import RolServicioPanel from './components/RolServicioPanel';
@@ -19,28 +18,33 @@ const TABS = [
 export default function App() {
   const [tab, setTab] = useState('rol');
   const {
-    people, events, roles, sections,
+    people, events, roles, sections, loading,
     addPerson, updatePerson, deletePerson,
     saveEvent, deleteEvent,
     addRole, updateRole, deleteRole,
     addSection, updateSection, deleteSection,
   } = useStore();
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">
+        Cargando…
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="no-print border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center gap-3">
-          <div className="w-9 h-9 bg-primary text-primary-foreground flex items-center justify-center">
-            <Church size={18} />
-          </div>
-          <div>
-            <h1 className="text-base font-semibold tracking-tight leading-none">
-              Ministerio LINK
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              Gestión de roles de servicio
-            </p>
-          </div>
+          <img
+            src="/link-logo.jpg"
+            alt="Ministerio LINK"
+            className="h-10 w-auto"
+          />
+          <p className="text-xs text-muted-foreground">
+            Gestión de roles de servicio
+          </p>
         </div>
       </header>
 
