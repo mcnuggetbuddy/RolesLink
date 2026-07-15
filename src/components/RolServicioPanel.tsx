@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Pencil, Eye, Printer, X, Calendar, Mic2, DoorOpen, Building2,
-  Tv, HeartHandshake, Users, Star,
+  Tv, HeartHandshake, Users, Star, CheckCircle2, CircleDashed,
 } from 'lucide-react';
 import type { Person, Role, RoleSection, ServiceEvent } from '../lib/types';
 
@@ -122,6 +122,20 @@ export default function RolServicioPanel({
   const eligible = (roleId: string) =>
     sortedPeople.filter(p => !p.exceptions.includes(roleId));
 
+  const { assignedPeople, unassignedPeople } = useMemo(() => {
+    const assignedIds = new Set<string>();
+    for (const ids of Object.values(assignments)) {
+      for (const id of ids) assignedIds.add(id);
+    }
+    const assigned: Person[] = [];
+    const unassigned: Person[] = [];
+    for (const p of sortedPeople) {
+      if (assignedIds.has(p.id)) assigned.push(p);
+      else unassigned.push(p);
+    }
+    return { assignedPeople: assigned, unassignedPeople: unassigned };
+  }, [assignments, sortedPeople]);
+
   const introSection = sections.find(s => s.id === 'intro');
   const introRoles = introSection
     ? roles.filter(r => r.sectionId === 'intro')
@@ -129,8 +143,9 @@ export default function RolServicioPanel({
   const otherSections = sections.filter(s => s.id !== 'intro');
 
   return (
-    <div style={{
-      maxWidth: 760, margin: '0 auto',
+    <div className="rol-servicio-wrapper" style={{
+      display: 'flex', gap: 20, alignItems: 'flex-start',
+      margin: '0 auto', maxWidth: 1040,
       fontFamily: "'Sora', ui-sans-serif, system-ui, sans-serif",
       color: INK,
     }}>
@@ -140,12 +155,17 @@ export default function RolServicioPanel({
           .no-print { display: none !important; }
           body { background: #fff !important; }
           main { max-width: none !important; padding: 0 !important; }
+          .rol-servicio-main { max-width: none !important; }
           *, *::before, *::after {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
         }
+        @media (max-width: 960px) {
+          .rol-servicio-aside { display: none !important; }
+        }
       `}</style>
+      <div className="rol-servicio-main" style={{ flex: 1, minWidth: 0, maxWidth: 760, margin: '0 auto' }}>
 
       {/* Actions */}
       <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 18 }}>
@@ -405,6 +425,88 @@ export default function RolServicioPanel({
         })}
 
       </div>
+      </div>
+
+      <aside className="no-print rol-servicio-aside" style={{
+        width: 240, flexShrink: 0,
+        position: 'sticky', top: 20,
+        background: '#fff', border: `1px solid ${BORDE}`,
+        borderRadius: 14, padding: '14px 16px',
+        maxHeight: 'calc(100vh - 40px)', overflow: 'auto',
+      }}>
+        <p style={{
+          margin: 0, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', color: MUTED, fontWeight: 600,
+        }}>
+          Resumen
+        </p>
+
+        <div style={{ marginTop: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <CheckCircle2 size={14} color={VERDE} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: VERDE, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Asignados
+            </span>
+            <span style={{
+              marginLeft: 'auto', fontSize: 11, fontWeight: 700,
+              background: VERDE_TINT, color: VERDE,
+              borderRadius: 999, padding: '1px 8px',
+            }}>
+              {assignedPeople.length}
+            </span>
+          </div>
+          {assignedPeople.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 12, color: MUTED, fontStyle: 'italic' }}>
+              Nadie asignado aún
+            </p>
+          ) : (
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {assignedPeople.map(p => (
+                <li key={p.id} style={{
+                  fontSize: 13, color: INK,
+                  padding: '4px 8px', borderRadius: 6,
+                  background: VERDE_TINT,
+                }}>
+                  {p.name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${BORDE}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <CircleDashed size={14} color={MUTED} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: MUTED, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Sin asignar
+            </span>
+            <span style={{
+              marginLeft: 'auto', fontSize: 11, fontWeight: 700,
+              background: '#F1F2EF', color: MUTED,
+              borderRadius: 999, padding: '1px 8px',
+            }}>
+              {unassignedPeople.length}
+            </span>
+          </div>
+          {unassignedPeople.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 12, color: MUTED, fontStyle: 'italic' }}>
+              Todos asignados
+            </p>
+          ) : (
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {unassignedPeople.map(p => (
+                <li key={p.id} style={{
+                  fontSize: 13, color: INK,
+                  padding: '4px 8px', borderRadius: 6,
+                  border: `1px dashed ${BORDE}`,
+                }}>
+                  {p.name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </aside>
     </div>
   );
 }
