@@ -2,31 +2,33 @@ import { useState } from 'react';
 import { Church } from 'lucide-react';
 import { Tabs } from './components/ui';
 import { useStore } from './lib/store';
-import AssignmentPanel from './components/AssignmentPanel';
+import RolServicioPanel from './components/RolServicioPanel';
 import PeoplePanel from './components/PeoplePanel';
 import RolesPanel from './components/RolesPanel';
 import HistoryPanel from './components/HistoryPanel';
+import ServicesPanel from './components/ServicesPanel';
 
 const TABS = [
-  { value: 'assignment', label: 'Asignación de Roles' },
+  { value: 'rol', label: 'Rol de servicio' },
+  { value: 'services', label: 'Servicios' },
   { value: 'people', label: 'Personas' },
   { value: 'roles', label: 'Roles' },
   { value: 'history', label: 'Historial' },
 ];
 
 export default function App() {
-  const [tab, setTab] = useState('assignment');
+  const [tab, setTab] = useState('rol');
   const {
     people, events, roles, sections,
     addPerson, updatePerson, deletePerson,
-    saveEvent,
+    saveEvent, deleteEvent,
     addRole, updateRole, deleteRole,
     addSection, updateSection, deleteSection,
   } = useStore();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-card">
+      <header className="no-print border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center gap-3">
           <div className="w-9 h-9 bg-primary text-primary-foreground flex items-center justify-center">
             <Church size={18} />
@@ -44,13 +46,23 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <Tabs value={tab} onValueChange={setTab} tabs={TABS}>
-          {tab === 'assignment' && (
-            <AssignmentPanel
+          {tab === 'rol' && (
+            <RolServicioPanel
               people={people}
               events={events}
               roles={roles}
               sections={sections}
               onSave={saveEvent}
+            />
+          )}
+          {tab === 'services' && (
+            <ServicesPanel
+              people={people}
+              events={events}
+              roles={roles}
+              sections={sections}
+              onSave={saveEvent}
+              onDelete={deleteEvent}
             />
           )}
           {tab === 'people' && (

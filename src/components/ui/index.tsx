@@ -215,7 +215,7 @@ interface TabsProps {
 
 export const Tabs = ({ value, onValueChange, tabs, children }: TabsProps) => (
   <div>
-    <div className="flex border-b border-border mb-6 gap-0 overflow-x-auto">
+    <div className="no-print flex border-b border-border mb-6 gap-0 overflow-x-auto">
       {tabs.map(tab => (
         <button
           key={tab.value}

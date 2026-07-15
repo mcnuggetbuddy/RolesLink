@@ -112,7 +112,7 @@ export default function HistoryPanel({ people, events: rawEvents, roles }: Props
                       <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.14em]">
                         Historial por servicio
                       </p>
-                      {participations.map(({ event, roles }) => (
+                      {participations.map(({ event, roles: participationRoles }) => (
                         <div
                           key={event.id}
                           className="flex items-start gap-3 border border-border p-3"
@@ -122,7 +122,7 @@ export default function HistoryPanel({ people, events: rawEvents, roles }: Props
                             {formatDate(event.date)}
                           </span>
                           <div className="flex flex-wrap gap-1">
-                            {roles.map(roleId => {
+                            {participationRoles.map(roleId => {
                               const role = roles.find(r => r.id === roleId);
                               return (
                                 <Badge key={roleId} variant="secondary">

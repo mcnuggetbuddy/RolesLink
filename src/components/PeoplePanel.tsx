@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Pencil, Trash2, Plus, X, Save, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
 import {
-  Button, Card, CardContent,
+  Button, Card,
   Input, Label, Dialog, Badge,
 } from './ui';
 import type { Person, Role } from '../lib/types';
@@ -67,8 +67,18 @@ export default function PeoplePanel({ people, roles, onAdd, onUpdate, onDelete }
     return list;
   }, [people, search, sortDir]);
 
+  const total = people.length;
+  const showingFiltered = search.trim().length > 0 && filtered.length !== total;
+
   return (
     <div>
+      <div className="flex items-baseline gap-2 mb-4">
+        <h2 className="text-lg font-semibold tracking-tight">Personas</h2>
+        <Badge variant="secondary">
+          {showingFiltered ? `${filtered.length} de ${total}` : `${total} en total`}
+        </Badge>
+      </div>
+
       <div className="flex items-center justify-between mb-4 gap-2">
         <div className="flex-1 max-w-xs">
           <Input

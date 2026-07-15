@@ -14,11 +14,12 @@ export interface Role {
   label: string;
   sectionId: string;
   allowMultiple?: boolean;
+  highlight?: boolean;
 }
 
 export interface ServiceEvent {
   id: string;
   date: string; // YYYY-MM-DD
   assignments: Record<string, string[]>; // roleId -> personIds
-  absences: string[]; // personIds not confirmed / absent
 }
+

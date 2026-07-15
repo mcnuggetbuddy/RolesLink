@@ -7,6 +7,7 @@ export const ROLE_SECTIONS: RoleSection[] = [
   { id: 'auditorio', label: 'Auditorio' },
   { id: 'redes', label: 'Redes Sociales' },
   { id: 'otros', label: 'Otros' },
+  { id: 'ausencias', label: 'Ausencias' },
 ];
 
 export const ROLES: Role[] = [
@@ -29,8 +30,8 @@ export const ROLES: Role[] = [
   // Auditorio
   { id: 'decoracion', label: 'Decoración', sectionId: 'auditorio' },
   { id: 'conteo_personas', label: 'Conteo Personas', sectionId: 'auditorio' },
-  { id: 'bloque_arriba', label: 'Bloque Arriba', sectionId: 'auditorio', allowMultiple: true },
-  { id: 'bloque_abajo', label: 'Bloque Abajo', sectionId: 'auditorio', allowMultiple: true },
+  { id: 'bloque_arriba', label: 'Bloque Arriba', sectionId: 'auditorio', allowMultiple: true, highlight: true },
+  { id: 'bloque_abajo', label: 'Bloque Abajo', sectionId: 'auditorio', allowMultiple: true, highlight: true },
   { id: 'kleenex', label: 'Kleenex', sectionId: 'auditorio' },
   { id: 'quitar_cintas', label: 'Quitar / Poner Cintas', sectionId: 'auditorio', allowMultiple: true },
   // Redes Sociales
@@ -38,6 +39,8 @@ export const ROLES: Role[] = [
   { id: 'youtube', label: 'YouTube', sectionId: 'redes' },
   // Otros
   { id: 'orar_peticiones', label: 'Encargado de Orar por Peticiones', sectionId: 'otros' },
+  // Ausencias
+  { id: 'ausencia', label: 'No confirmado / Ausente', sectionId: 'ausencias', allowMultiple: true },
 ];
 
 export const EXCEPTION_MAP: Record<string, string[]> = {
