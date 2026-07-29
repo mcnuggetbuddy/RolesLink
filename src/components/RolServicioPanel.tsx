@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
-  Pencil, Eye, Printer, X, Calendar, Mic2, DoorOpen, Building2,
+  Pencil, Eye, Printer, Image as ImageIcon, X, Calendar, Mic2, DoorOpen, Building2,
   Tv, HeartHandshake, Users, Star, CheckCircle2, CircleDashed,
 } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import type { Person, Role, RoleSection, ServiceEvent } from '../lib/types';
 
 interface Props {
@@ -64,6 +65,41 @@ export default function RolServicioPanel({
   const [editando, setEditando] = useState(false);
   const [assignments, setAssignments] = useState<Record<string, string[]>>({});
   const [eventId, setEventId] = useState<string>(() => crypto.randomUUID());
+  const mainRef = useRef<HTMLDivElement>(null);
+  const [exportingPng, setExportingPng] = useState(false);
+
+  const handleExportPng = async () => {
+    if (!mainRef.current) return;
+    setExportingPng(true);
+    try {
+      const node = mainRef.current;
+      const padding = 48;
+      const width = node.offsetWidth;
+      const height = node.offsetHeight;
+      const dataUrl = await toPng(node, {
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        cacheBust: true,
+        width: width + padding * 2,
+        height: height + padding * 2,
+        style: {
+          padding: `${padding}px`,
+          boxSizing: 'content-box',
+          background: '#ffffff',
+        },
+        filter: (n) =>
+          !(n instanceof HTMLElement && n.classList.contains('no-print')),
+      });
+      const link = document.createElement('a');
+      link.download = `rol-servicio-${date}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Error exportando PNG:', err);
+    } finally {
+      setExportingPng(false);
+    }
+  };
 
   useEffect(() => {
     const existing = events.find(e => e.date === date);
@@ -146,11 +182,12 @@ export default function RolServicioPanel({
     <div className="rol-servicio-wrapper" style={{
       display: 'flex', gap: 20, alignItems: 'flex-start',
       margin: '0 auto', maxWidth: 1040,
-      fontFamily: "'Sora', ui-sans-serif, system-ui, sans-serif",
+      fontFamily: "'Satoshi', ui-sans-serif, system-ui, sans-serif",
       color: INK,
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap');
+        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap');
+        .rol-tabla-upper, .rol-tabla-upper * { text-transform: uppercase; }
         @media print {
           .no-print { display: none !important; }
           body { background: #fff !important; }
@@ -165,7 +202,7 @@ export default function RolServicioPanel({
           .rol-servicio-aside { display: none !important; }
         }
       `}</style>
-      <div className="rol-servicio-main" style={{ flex: 1, minWidth: 0, maxWidth: 760, margin: '0 auto' }}>
+      <div ref={mainRef} className="rol-servicio-main" style={{ flex: 1, minWidth: 0, maxWidth: 760, margin: '0 auto' }}>
 
       {/* Actions */}
       <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 18 }}>
@@ -183,6 +220,21 @@ export default function RolServicioPanel({
         >
           {editando ? <Eye size={15} /> : <Pencil size={15} />}
           {editando ? 'Ver resultado' : 'Editar rol'}
+        </button>
+        <button
+          onClick={handleExportPng}
+          disabled={exportingPng}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            border: `1px solid ${BORDE}`, background: '#fff', color: INK,
+            borderRadius: 10, padding: '8px 14px',
+            fontSize: 13, fontWeight: 600,
+            cursor: exportingPng ? 'wait' : 'pointer',
+            opacity: exportingPng ? 0.6 : 1,
+            fontFamily: 'inherit',
+          }}
+        >
+          <ImageIcon size={15} /> {exportingPng ? 'Exportando…' : 'Exportar PNG'}
         </button>
         <button
           onClick={() => window.print()}
@@ -221,6 +273,7 @@ export default function RolServicioPanel({
           background: VERDE_TINT, color: VERDE,
           borderRadius: 10, padding: '8px 14px',
           fontWeight: 600, fontSize: 14,
+          whiteSpace: 'nowrap', flexShrink: 0,
         }}>
           <Calendar size={15} />
           {editando ? (
@@ -241,12 +294,12 @@ export default function RolServicioPanel({
 
       {/* Programa (dark banner) */}
       {introRoles.length > 0 && (
-        <div style={{ background: INK, borderRadius: 16, padding: '18px 20px', marginBottom: 14 }}>
+        <div className="rol-tabla-upper" style={{ background: INK, borderRadius: 16, padding: '18px 20px', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
             <Mic2 size={14} color="#8FD4BE" />
             <span style={{
               fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase',
-              color: '#8FD4BE', fontWeight: 600,
+              color: '#8FD4BE', fontWeight: 600, whiteSpace: 'nowrap',
             }}>
               {introSection?.label ?? 'Programa'}
             </span>
@@ -265,7 +318,7 @@ export default function RolServicioPanel({
                   borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.15)' : 'none',
                   padding: '0 6px',
                 }}>
-                  <p style={{ margin: 0, fontSize: 11.5, color: 'rgba(255,255,255,0.55)' }}>
+                  <p style={{ margin: 0, fontSize: 11.5, color: 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap' }}>
                     {role.label}
                   </p>
                   {editando ? (
@@ -308,7 +361,7 @@ export default function RolServicioPanel({
       )}
 
       {/* Grid: other sections + ausencias */}
-      <div style={{
+      <div className="rol-tabla-upper" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
         gap: 12,
@@ -329,7 +382,7 @@ export default function RolServicioPanel({
                 <Icono size={15} color={palette.accent} />
                 <span style={{
                   fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-                  color: palette.accent, fontWeight: 700,
+                  color: palette.accent, fontWeight: 700, whiteSpace: 'nowrap',
                 }}>
                   {section.label}
                 </span>
@@ -400,17 +453,18 @@ export default function RolServicioPanel({
                         }}>
                           <span style={{
                             color: hl ? HIGHLIGHT_ACCENT : MUTED,
-                            fontWeight: hl ? 700 : 400,
+                            fontWeight: hl ? 700 : 600,
                             display: 'inline-flex', alignItems: 'center', gap: 5,
                           }}>
                             {hl && <Star size={12} fill={HIGHLIGHT_ACCENT} color={HIGHLIGHT_ACCENT} />}
                             {role.label}
                           </span>
                           <span style={{
-                            fontWeight: 700,
+                            fontWeight: 900,
                             textAlign: 'right',
                             color: INK,
                             fontSize: hl ? 14.5 : 13.5,
+                            whiteSpace: 'nowrap',
                           }}>
                             {namesFor(role.id) || '—'}
                           </span>
