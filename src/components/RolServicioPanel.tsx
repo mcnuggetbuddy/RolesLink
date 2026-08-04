@@ -72,6 +72,14 @@ export default function RolServicioPanel({
     if (!mainRef.current) return;
     setExportingPng(true);
     try {
+      await Promise.all([
+        document.fonts.load('700 28px Satoshi'),
+        document.fonts.load('600 14px Satoshi'),
+        document.fonts.load('900 14px Satoshi'),
+        document.fonts.load('400 13px Satoshi'),
+      ]);
+      await document.fonts.ready;
+
       const node = mainRef.current;
       const padding = 48;
       const width = node.offsetWidth;
@@ -186,7 +194,6 @@ export default function RolServicioPanel({
       color: INK,
     }}>
       <style>{`
-        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap');
         .rol-tabla-upper, .rol-tabla-upper * { text-transform: uppercase; }
         @media print {
           .no-print { display: none !important; }
