@@ -15,6 +15,7 @@ export interface Role {
   sectionId: string;
   allowMultiple?: boolean;
   highlight?: boolean;
+  sortOrder?: number;
 }
 
 export interface ServiceEvent {

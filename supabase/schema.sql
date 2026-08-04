@@ -13,6 +13,7 @@ create table if not exists roles (
   section_id text not null references role_sections(id) on delete cascade,
   allow_multiple boolean default false,
   highlight boolean default false,
+  sort_order integer not null default 0,
   created_at timestamptz default now()
 );
 

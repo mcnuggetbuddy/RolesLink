@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Person, Role, RoleSection, ServiceEvent } from './types';
 import { supabase } from './supabase';
 
@@ -9,6 +9,7 @@ type RoleRow = {
   section_id: string;
   allow_multiple: boolean | null;
   highlight: boolean | null;
+  sort_order: number | null;
 };
 type SectionRow = { id: string; label: string };
 type EventRow = {
@@ -29,6 +30,7 @@ const rowToRole = (r: RoleRow): Role => ({
   sectionId: r.section_id,
   allowMultiple: r.allow_multiple ?? undefined,
   highlight: r.highlight ?? undefined,
+  sortOrder: r.sort_order ?? undefined,
 });
 
 const rowToSection = (r: SectionRow): RoleSection => ({ id: r.id, label: r.label });
@@ -51,6 +53,7 @@ const roleToRow = (r: Role): RoleRow => ({
   section_id: r.sectionId,
   allow_multiple: r.allowMultiple ?? false,
   highlight: r.highlight ?? false,
+  sort_order: r.sortOrder ?? 0,
 });
 
 const sectionToRow = (s: RoleSection): SectionRow => ({ id: s.id, label: s.label });
@@ -225,8 +228,18 @@ export function useStore() {
     });
   };
 
+  const sortedRoles = useMemo(
+    () => [...roles].sort((a, b) => {
+      const ao = a.sortOrder ?? 0;
+      const bo = b.sortOrder ?? 0;
+      if (ao !== bo) return ao - bo;
+      return a.label.localeCompare(b.label, 'es');
+    }),
+    [roles]
+  );
+
   return {
-    people, events, roles, sections, loading,
+    people, events, roles: sortedRoles, sections, loading,
     addPerson, updatePerson, deletePerson,
     saveEvent, deleteEvent,
     addRole, updateRole, deleteRole,

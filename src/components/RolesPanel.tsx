@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Pencil, Trash2, Plus, X, Save, Users, FolderPlus, Star,
+  Pencil, Trash2, Plus, X, Save, Users, FolderPlus, Star, ArrowUp, ArrowDown,
 } from 'lucide-react';
 import {
   Button, Card, CardHeader, CardTitle, CardContent,
@@ -80,9 +80,37 @@ export default function RolesPanel({
     if (editingRole) {
       onUpdateRole({ ...editingRole, ...roleForm, label });
     } else {
-      onAddRole({ id: uniqueId(label, roles), ...roleForm, label });
+      const sectionMax = roles
+        .filter(r => r.sectionId === roleForm.sectionId)
+        .reduce((m, r) => Math.max(m, r.sortOrder ?? 0), 0);
+      onAddRole({
+        id: uniqueId(label, roles),
+        ...roleForm,
+        label,
+        sortOrder: sectionMax + 1,
+      });
     }
     setRoleDialog(false);
+  };
+
+  const moveRole = (role: Role, direction: -1 | 1) => {
+    const siblings = roles
+      .filter(r => r.sectionId === role.sectionId)
+      .sort((a, b) => {
+        const ao = a.sortOrder ?? 0;
+        const bo = b.sortOrder ?? 0;
+        if (ao !== bo) return ao - bo;
+        return a.label.localeCompare(b.label, 'es');
+      });
+    const idx = siblings.findIndex(r => r.id === role.id);
+    const targetIdx = idx + direction;
+    if (idx === -1 || targetIdx < 0 || targetIdx >= siblings.length) return;
+    const reordered = [...siblings];
+    [reordered[idx], reordered[targetIdx]] = [reordered[targetIdx], reordered[idx]];
+    reordered.forEach((r, i) => {
+      const nextOrder = i + 1;
+      if (r.sortOrder !== nextOrder) onUpdateRole({ ...r, sortOrder: nextOrder });
+    });
   };
 
   const openNewSection = () => {
@@ -183,6 +211,28 @@ export default function RolesPanel({
                     <div key={role.id}>
                       {idx > 0 && <Separator />}
                       <div className="flex items-center gap-2 py-2.5">
+                        <div className="flex flex-col -my-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 text-muted-foreground disabled:opacity-30"
+                            disabled={idx === 0}
+                            onClick={() => moveRole(role, -1)}
+                            aria-label="Subir rol"
+                          >
+                            <ArrowUp size={13} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 text-muted-foreground disabled:opacity-30"
+                            disabled={idx === sectionRoles.length - 1}
+                            onClick={() => moveRole(role, 1)}
+                            aria-label="Bajar rol"
+                          >
+                            <ArrowDown size={13} />
+                          </Button>
+                        </div>
                         <span className="font-medium text-sm flex-1 inline-flex items-center gap-1.5">
                           {role.highlight && (
                             <Star size={13} className="text-amber-500 fill-amber-500 shrink-0" />
