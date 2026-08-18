@@ -272,7 +272,7 @@ export default function RolServicioPanel({
           <h1 style={{
             margin: '2px 0 0', fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em',
           }}>
-            Ministerio LINK
+            Ministerio ORACION PAS
           </h1>
         </div>
         <div style={{
