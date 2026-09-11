@@ -97,57 +97,8 @@ export function useStore() {
       setLoading(false);
     })();
 
-    const channel = supabase
-      .channel('roleslink')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'people' }, payload => {
-        if (payload.eventType === 'DELETE') {
-          setPeople(p => p.filter(x => x.id !== (payload.old as PersonRow).id));
-        } else {
-          const row = rowToPerson(payload.new as PersonRow);
-          setPeople(p => {
-            const i = p.findIndex(x => x.id === row.id);
-            return i === -1 ? [...p, row] : p.map(x => x.id === row.id ? row : x);
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, payload => {
-        if (payload.eventType === 'DELETE') {
-          setRoles(r => r.filter(x => x.id !== (payload.old as RoleRow).id));
-        } else {
-          const row = rowToRole(payload.new as RoleRow);
-          setRoles(r => {
-            const i = r.findIndex(x => x.id === row.id);
-            return i === -1 ? [...r, row] : r.map(x => x.id === row.id ? row : x);
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'role_sections' }, payload => {
-        if (payload.eventType === 'DELETE') {
-          setSections(s => s.filter(x => x.id !== (payload.old as SectionRow).id));
-        } else {
-          const row = rowToSection(payload.new as SectionRow);
-          setSections(s => {
-            const i = s.findIndex(x => x.id === row.id);
-            return i === -1 ? [...s, row] : s.map(x => x.id === row.id ? row : x);
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'service_events' }, payload => {
-        if (payload.eventType === 'DELETE') {
-          setEvents(e => e.filter(x => x.id !== (payload.old as EventRow).id));
-        } else {
-          const row = rowToEvent(payload.new as EventRow);
-          setEvents(e => {
-            const i = e.findIndex(x => x.id === row.id);
-            return i === -1 ? [...e, row] : e.map(x => x.id === row.id ? row : x);
-          });
-        }
-      })
-      .subscribe();
-
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
     };
   }, []);
 
