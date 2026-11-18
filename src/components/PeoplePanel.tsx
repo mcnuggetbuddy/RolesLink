@@ -169,7 +169,9 @@ export default function PeoplePanel({ people, roles, onAdd, onUpdate, onDelete }
               className="max-h-56 overflow-y-auto flex flex-col gap-1 border border-border p-3"
               style={{ borderRadius: 'var(--radius)' }}
             >
-              {roles.map(role => (
+              {roles
+                .filter(role => role.active !== false || form.exceptions.includes(role.id))
+                .map(role => (
                 <label key={role.id} className="flex items-center gap-2 cursor-pointer text-sm py-0.5">
                   <input
                     type="checkbox"

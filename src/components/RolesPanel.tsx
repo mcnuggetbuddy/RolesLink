@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Pencil, Trash2, Plus, X, Save, Users, FolderPlus, Star, ArrowUp, ArrowDown,
+  Pencil, Trash2, Plus, X, Save, Users, FolderPlus, Star, ArrowUp, ArrowDown, Eye, EyeOff,
 } from 'lucide-react';
 import {
   Button, Card, CardHeader, CardTitle, CardContent,
@@ -37,7 +37,7 @@ function uniqueId(base: string, existing: { id: string }[]) {
 }
 
 const emptyRoleForm = (sectionId: string): Omit<Role, 'id'> => ({
-  label: '', sectionId, allowMultiple: false, highlight: false,
+  label: '', sectionId, allowMultiple: false, highlight: false, active: true,
 });
 
 export default function RolesPanel({
@@ -70,8 +70,13 @@ export default function RolesPanel({
       sectionId: r.sectionId,
       allowMultiple: !!r.allowMultiple,
       highlight: !!r.highlight,
+      active: r.active ?? true,
     });
     setRoleDialog(true);
+  };
+
+  const toggleRoleActive = (role: Role) => {
+    onUpdateRole({ ...role, active: role.active === false });
   };
 
   const saveRole = () => {
@@ -207,10 +212,12 @@ export default function RolesPanel({
                 </p>
               ) : (
                 <div className="flex flex-col">
-                  {sectionRoles.map((role, idx) => (
+                  {sectionRoles.map((role, idx) => {
+                    const isInactive = role.active === false;
+                    return (
                     <div key={role.id}>
                       {idx > 0 && <Separator />}
-                      <div className="flex items-center gap-2 py-2.5">
+                      <div className={`flex items-center gap-2 py-2.5${isInactive ? ' opacity-50' : ''}`}>
                         <div className="flex flex-col -my-1">
                           <Button
                             variant="ghost"
@@ -233,12 +240,17 @@ export default function RolesPanel({
                             <ArrowDown size={13} />
                           </Button>
                         </div>
-                        <span className="font-medium text-sm flex-1 inline-flex items-center gap-1.5">
+                        <span className={`font-medium text-sm flex-1 inline-flex items-center gap-1.5${isInactive ? ' line-through' : ''}`}>
                           {role.highlight && (
                             <Star size={13} className="text-amber-500 fill-amber-500 shrink-0" />
                           )}
                           {role.label}
                         </span>
+                        {isInactive && (
+                          <Badge variant="outline" className="text-muted-foreground">
+                            Inactivo
+                          </Badge>
+                        )}
                         {role.allowMultiple && (
                           <Badge variant="secondary">
                             <Users size={10} className="mr-1" /> múltiple
@@ -249,6 +261,15 @@ export default function RolesPanel({
                             <Star size={10} className="mr-1 fill-current" /> destacado
                           </Badge>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleRoleActive(role)}
+                          title={isInactive ? 'Activar rol' : 'Desactivar rol'}
+                          aria-label={isInactive ? 'Activar rol' : 'Desactivar rol'}
+                        >
+                          {isInactive ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => openEditRole(role)}>
                           <Pencil size={15} />
                         </Button>
@@ -265,7 +286,8 @@ export default function RolesPanel({
                         </Button>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

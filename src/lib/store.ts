@@ -10,6 +10,7 @@ type RoleRow = {
   allow_multiple: boolean | null;
   highlight: boolean | null;
   sort_order: number | null;
+  active: boolean | null;
 };
 type SectionRow = { id: string; label: string };
 type EventRow = {
@@ -31,6 +32,7 @@ const rowToRole = (r: RoleRow): Role => ({
   allowMultiple: r.allow_multiple ?? undefined,
   highlight: r.highlight ?? undefined,
   sortOrder: r.sort_order ?? undefined,
+  active: r.active ?? true,
 });
 
 const rowToSection = (r: SectionRow): RoleSection => ({ id: r.id, label: r.label });
@@ -54,6 +56,7 @@ const roleToRow = (r: Role): RoleRow => ({
   allow_multiple: r.allowMultiple ?? false,
   highlight: r.highlight ?? false,
   sort_order: r.sortOrder ?? 0,
+  active: r.active ?? true,
 });
 
 const sectionToRow = (s: RoleSection): SectionRow => ({ id: s.id, label: s.label });

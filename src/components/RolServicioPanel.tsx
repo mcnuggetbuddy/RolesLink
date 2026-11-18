@@ -180,9 +180,10 @@ export default function RolServicioPanel({
     return { assignedPeople: assigned, unassignedPeople: unassigned };
   }, [assignments, sortedPeople]);
 
+  const activeRoles = roles.filter(r => r.active !== false);
   const introSection = sections.find(s => s.id === 'intro');
   const introRoles = introSection
-    ? roles.filter(r => r.sectionId === 'intro')
+    ? activeRoles.filter(r => r.sectionId === 'intro')
     : [];
   const otherSections = sections.filter(s => s.id !== 'intro');
 
@@ -374,7 +375,7 @@ export default function RolServicioPanel({
         gap: 12,
       }}>
         {otherSections.map(section => {
-          const sectionRoles = roles.filter(r => r.sectionId === section.id);
+          const sectionRoles = activeRoles.filter(r => r.sectionId === section.id);
           if (sectionRoles.length === 0) return null;
           const Icono = SECTION_ICONS[section.id] ?? Users;
           const palette = SECTION_PALETTE[section.id] ?? FALLBACK_PALETTE;

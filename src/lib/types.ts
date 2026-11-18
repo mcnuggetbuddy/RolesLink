@@ -16,6 +16,7 @@ export interface Role {
   allowMultiple?: boolean;
   highlight?: boolean;
   sortOrder?: number;
+  active?: boolean;
 }
 
 export interface ServiceEvent {
